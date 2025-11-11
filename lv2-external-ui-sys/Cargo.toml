@@ -1,0 +1,11 @@
+[package]
+authors = ["Sander Vocke <sandervocke@gmail.com>"]
+description = "bindings for LV2 external UI extension."
+edition = "2024"
+keywords = ["realtime", "audio", "lv2", "plugins", "music"]
+license = "MIT"
+name = "lv2-external-ui-sys"
+version = "0.1.0"
+
+[build-dependencies]
+bindgen = "0.69"

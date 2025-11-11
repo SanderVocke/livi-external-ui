@@ -1,0 +1,15 @@
+[package]
+authors = ["Sander Vocke <sandervocke@gmail.com>"]
+description = "External UI support for livi."
+edition = "2024"
+keywords = ["realtime", "audio", "lv2", "plugins", "music"]
+license = "MIT"
+name = "livi-external-ui"
+version = "0.1.0"
+
+[dependencies]
+lv2-external-ui-sys = { path = "../lv2-external-ui-sys" }
+lilv = "0.2"
+lv2-sys = "2"
+livi = "0.7"
+libloading = "0.7"

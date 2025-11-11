@@ -1,0 +1,5 @@
+[workspace]
+
+resolver = "2"
+
+members = ["lv2-external-ui-sys", "livi-external-ui"]

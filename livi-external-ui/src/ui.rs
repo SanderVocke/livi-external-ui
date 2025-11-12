@@ -29,7 +29,7 @@ impl std::error::Error for LiviUIError {
     }
 }
 
-pub fn plugin_uis(world: &livi::World, plugin: &livi::Plugin) -> Result<Vec<UI>, LiviUIError> {
+pub fn plugin_uis(world: &livi::World, plugin: &livi::Plugin) -> Result<impl Iterator<Item = UI>, LiviUIError> {
     let ui_world = ExternalUIWorld::new(world.raw());
     let uis: Option<Result<Vec<UI>, LiviUIError>> = plugin.raw().uis().map(|uis| {
         uis.into_iter()
@@ -48,8 +48,8 @@ pub fn plugin_uis(world: &livi::World, plugin: &livi::Plugin) -> Result<Vec<UI>,
     });
 
     match uis {
-        Some(Ok(uis)) => Ok(uis),
+        Some(Ok(uis)) => Ok(uis.into_iter()),
         Some(Err(e)) => Err(e),
-        None => Ok(Vec::new()),
+        None => Ok(Vec::new().into_iter()),
     }
 }

@@ -40,30 +40,28 @@ fn main_impl() -> Result<(), Box<dyn std::error::Error>> {
         vec![0.0; features.max_block_length()], // For mda EPiano, this is the right channel.
     ];
 
-    let uis = &livi_external_ui::ui::plugin_uis(&world, &plugin)?;
+    let mut uis = livi_external_ui::ui::plugin_uis(&world, &plugin)?;
     let mut ui_instance: Option<ExternalUIInstance> = None;
 
-    if uis.len() > 0 {
-        if let livi_external_ui::ui::UI::External(ui) = &uis[0] {
-            println!("Loading plugin: {}", ui.binary.path);
-            let ui_loaded = Some(ui.load()?);
-            println!("Instantiating UI.");
-            let (inst, runner) = ui_loaded.unwrap().instantiate(&ui, &instance)?;
-            ui_instance = Some(inst);
+    if let Some(livi_external_ui::ui::UI::External(ui)) = uis.next() {
+        println!("Loading plugin: {}", ui.binary.path);
+        let ui_loaded = Some(ui.load()?);
+        println!("Instantiating UI.");
+        let (inst, runner) = ui_loaded.unwrap().instantiate(&ui, &instance)?;
+        ui_instance = Some(inst);
 
-            // Start a UI thread to update the UI repeatedly.
-            let _ = thread::spawn(move || {
-                if let Err(e) = || -> Result<(), Box<dyn std::error::Error>> {
-                    runner.show()?;
-                    loop {
-                        runner.run()?;
-                        std::thread::sleep(Duration::from_millis(100));
-                    }
-                }() {
-                    eprintln!("UI thread error: {}", e);
+        // Start a UI thread to update the UI repeatedly.
+        let _ = thread::spawn(move || {
+            if let Err(e) = || -> Result<(), Box<dyn std::error::Error>> {
+                runner.show()?;
+                loop {
+                    runner.run()?;
+                    std::thread::sleep(Duration::from_millis(100));
                 }
-            });
-        }
+            }() {
+                eprintln!("UI thread error: {}", e);
+            }
+        });
     }
 
     loop {

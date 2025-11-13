@@ -143,10 +143,10 @@ impl ExternalUILibrary {
 
     pub fn instantiate(
         &self,
-        ui: &ExternalUI,
+        bundle_path: &str,
         plugin_instance: &livi::Instance,
     ) -> Result<(ExternalUIInstance, Box<ExternalUIInstanceRunner>), LiviExternalUIError> {
-        instantiate_external_ui(ui, &self, plugin_instance)
+        instantiate_external_ui(bundle_path, &self, plugin_instance)
     }
 }
 
@@ -183,7 +183,7 @@ extern "C" fn static_ui_write_fn(
     port_protocol: u32,
     buffer: *const c_void,
 ) {
-    let sender = unsafe { &mut *(controller as *mut ExternalUIControlSender) }; 
+    let sender = unsafe { &mut *(controller as *mut ExternalUIControlSender) };
     if let Err(e) = sender.sender.send(ExternalUIControlMessage {
         port_index: port_index,
         buffer_size: buffer_size,
@@ -195,7 +195,7 @@ extern "C" fn static_ui_write_fn(
 }
 
 fn instantiate_external_ui(
-    ui: &ExternalUI,
+    bundle_path: &str,
     lib: &ExternalUILibrary,
     plugin_instance: &livi::Instance,
 ) -> Result<(ExternalUIInstance, Box<ExternalUIInstanceRunner>), LiviExternalUIError> {
@@ -248,7 +248,7 @@ fn instantiate_external_ui(
                     ))
                 })?
                 .as_ptr(),
-            CString::new(ui.bundle.path.clone())
+            CString::new(bundle_path)
                 .map_err(|_| {
                     LiviExternalUIError::InstantiateError(String::from(
                         "C string construction error",

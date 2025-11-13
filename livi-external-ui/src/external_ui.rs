@@ -10,6 +10,7 @@ use std::{
     sync::mpsc::{Receiver, Sender},
 };
 
+#[derive(Clone)]
 pub struct BinaryPath {
     pub _hostname: String,
     pub path: String,
@@ -119,6 +120,7 @@ fn load_library(path: &BinaryPath) -> Result<Library, LiviExternalUIError> {
 }
 
 pub struct ExternalUILibrary {
+    pub bundle_path : BinaryPath,
     pub library: Library,
     pub descriptor: LV2UI_Descriptor,
 }
@@ -135,6 +137,7 @@ impl ExternalUILibrary {
 
         Ok(ExternalUILibrary {
             library: lib,
+            bundle_path: ui.bundle.clone(),
             descriptor: unsafe { descriptor.as_ref() }
                 .ok_or(LiviExternalUIError::LoadDescriptorError)?
                 .clone(),
@@ -143,10 +146,9 @@ impl ExternalUILibrary {
 
     pub fn instantiate(
         &self,
-        bundle_path: &str,
         plugin_instance: &livi::Instance,
     ) -> Result<(ExternalUIInstance, Box<ExternalUIInstanceRunner>), LiviExternalUIError> {
-        instantiate_external_ui(bundle_path, &self, plugin_instance)
+        instantiate_external_ui(&self, plugin_instance)
     }
 }
 
@@ -195,7 +197,6 @@ extern "C" fn static_ui_write_fn(
 }
 
 fn instantiate_external_ui(
-    bundle_path: &str,
     lib: &ExternalUILibrary,
     plugin_instance: &livi::Instance,
 ) -> Result<(ExternalUIInstance, Box<ExternalUIInstanceRunner>), LiviExternalUIError> {
@@ -248,7 +249,7 @@ fn instantiate_external_ui(
                     ))
                 })?
                 .as_ptr(),
-            CString::new(bundle_path)
+            CString::new(lib.bundle_path.path.clone())
                 .map_err(|_| {
                     LiviExternalUIError::InstantiateError(String::from(
                         "C string construction error",

@@ -47,7 +47,7 @@ fn main_impl() -> Result<(), Box<dyn std::error::Error>> {
         println!("Loading plugin: {}", ui.binary.path);
         let ui_loaded = Some(ui.load()?);
         println!("Instantiating UI.");
-        let (inst, runner) = ui_loaded.unwrap().instantiate(&ui.bundle.path, &instance)?;
+        let (inst, runner) = ui_loaded.unwrap().instantiate(&instance)?;
         ui_instance = Some(inst);
 
         // Start a UI thread to update the UI repeatedly.
